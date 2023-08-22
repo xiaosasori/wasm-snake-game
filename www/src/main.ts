@@ -1,5 +1,5 @@
 import './style.css'
-import init, { World } from 'snake_game'
+import init, { World } from '../../pkg'
 
 init().then(() => {
   const CELL_SIZE = 20
@@ -46,4 +46,12 @@ init().then(() => {
 
   drawWorld()
   drawSnake()
+
+  setInterval(() => {
+    if (!ctx) return
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    drawWorld()
+    drawSnake()
+    world.update()
+  }, 100)
 })

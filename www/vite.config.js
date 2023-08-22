@@ -11,5 +11,8 @@ export default defineConfig({
     exclude: [
       "snake_game"
     ]
+  },
+  server: {
+    fs: {allow: ['..']}
   }
 });
