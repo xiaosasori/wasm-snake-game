@@ -1,5 +1,5 @@
 import './style.css'
-import init, { World } from '../../pkg'
+import init, { Direction, World } from '../../pkg'
 
 init().then(() => {
   const CELL_SIZE = 20
@@ -13,6 +13,23 @@ init().then(() => {
 
   canvas.height = worldWidth * CELL_SIZE
   canvas.width = worldWidth * CELL_SIZE
+
+  document.addEventListener('keydown', (e) => {
+    switch(e.code) {
+      case 'ArrowUp':
+        world.change_snake_dir(Direction.Up)
+        break
+      case 'ArrowDown':
+        world.change_snake_dir(Direction.Down)
+        break
+      case 'ArrowRight':
+        world.change_snake_dir(Direction.Right)
+        break
+      case 'ArrowLeft':
+        world.change_snake_dir(Direction.Left)
+        break
+    }
+  })
 
   function drawWorld() {
     if (!ctx) return
@@ -53,7 +70,7 @@ init().then(() => {
   }
 
   function update() {
-    const fps = 3
+    const fps = 10
     setTimeout(() => {
       if (!ctx) return
       ctx.clearRect(0, 0, canvas.width, canvas.height)
