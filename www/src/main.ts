@@ -1,7 +1,7 @@
 import './style.css'
 import init, { Direction, World } from '../../pkg'
 
-init().then(() => {
+init().then((wasm) => {
   const CELL_SIZE = 20
   const WORLD_WIDTH = 8
   const snakeSpawnIdx = Date.now() % (WORLD_WIDTH * WORLD_WIDTH)
@@ -13,7 +13,7 @@ init().then(() => {
 
   canvas.height = worldWidth * CELL_SIZE
   canvas.width = worldWidth * CELL_SIZE
-
+  
   document.addEventListener('keydown', (e) => {
     switch(e.code) {
       case 'ArrowUp':
@@ -50,17 +50,24 @@ init().then(() => {
 
   function drawSnake() {
     if (!ctx) return
-    const snakeIdx = world.snake_head_idx()
-    const col = snakeIdx % worldWidth
-    const row = Math.floor(snakeIdx / worldWidth)
-
-    ctx.beginPath()
-    ctx.fillRect(
-      col * CELL_SIZE,
-      row * CELL_SIZE,
-      CELL_SIZE,
-      CELL_SIZE
+    const snakeCells = new Uint32Array(
+      wasm.memory.buffer,
+      world.snake_cells(),
+      world.snake_length()
     )
+    snakeCells.forEach(cellIdx => {
+      const col = cellIdx % worldWidth
+      const row = Math.floor(cellIdx / worldWidth)
+
+      ctx.beginPath()
+      ctx.fillRect(
+        col * CELL_SIZE,
+        row * CELL_SIZE,
+        CELL_SIZE,
+        CELL_SIZE
+      )
+    })
+    
     ctx.stroke()
   }
 
