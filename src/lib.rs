@@ -11,34 +11,35 @@ pub enum Direction {
   Up,
   Down,
   Right,
-  Left
+  Left,
 }
 
+#[derive(Clone)]
 pub struct SnakeCell(usize);
 struct Snake {
   body: Vec<SnakeCell>,
-  direction: Direction
+  direction: Direction,
 }
 
 impl Snake {
-    fn new(spawn_index: usize, size: usize) -> Snake {
-      let mut body = vec!();
+  fn new(spawn_index: usize, size: usize) -> Snake {
+    let mut body = vec![];
 
-      for i in 0..size {
-        body.push(SnakeCell(spawn_index - i));
-      }
-
-      Snake {
-        body,
-        direction: Direction::Right
-      }
+    for i in 0..size {
+      body.push(SnakeCell(spawn_index - i));
     }
+
+    Snake {
+      body,
+      direction: Direction::Right,
+    }
+  }
 }
 #[wasm_bindgen]
 pub struct World {
   width: usize,
   size: usize,
-  snake: Snake
+  snake: Snake,
 }
 
 #[wasm_bindgen]
@@ -47,7 +48,7 @@ impl World {
     World {
       width,
       size: width * width,
-      snake: Snake::new(snake_idx, 3)
+      snake: Snake::new(snake_idx, 3),
     }
   }
 
@@ -72,19 +73,26 @@ impl World {
   pub fn snake_cells(&self) -> *const SnakeCell {
     self.snake.body.as_ptr()
   }
-  // cannot return a reference to JS 
+  // cannot return a reference to JS
   // pub fn snake_cells(&self) -> &Vec<SnakeCell> {
   //   &self.snake.body
   // }
 
   pub fn step(&mut self) {
+    let temp = self.snake.body.clone();
     let next_cell = self.gen_next_snake_cell();
     self.snake.body[0] = next_cell;
+
+    let len = self.snake.body.len();
+
+    for i in 1..len {
+      self.snake.body[i] = SnakeCell(temp[i - 1].0);
+    }
   }
 
   fn gen_next_snake_cell(&self) -> SnakeCell {
     let snake_idx = self.snake_head_idx();
-    let row =  snake_idx / self.width;
+    let row = snake_idx / self.width;
 
     return match self.snake.direction {
       Direction::Right => {
@@ -94,7 +102,7 @@ impl World {
         } else {
           SnakeCell(snake_idx + 1)
         }
-      },
+      }
       Direction::Left => {
         let threshold = row * self.width;
         if snake_idx == threshold {
@@ -102,7 +110,7 @@ impl World {
         } else {
           SnakeCell(snake_idx - 1)
         }
-      },
+      }
       Direction::Up => {
         let threshold = snake_idx - (row * self.width);
         if snake_idx == threshold {
@@ -110,7 +118,7 @@ impl World {
         } else {
           SnakeCell(snake_idx - self.width)
         }
-      },
+      }
       Direction::Down => {
         let threshold = snake_idx + ((self.width - row) * self.width);
         if snake_idx + self.width == threshold {
