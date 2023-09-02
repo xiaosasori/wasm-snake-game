@@ -88,16 +88,36 @@ impl World {
 
     return match self.snake.direction {
       Direction::Right => {
-        SnakeCell((row * self.width) + (snake_idx + 1) % self.width)
+        let threshold = (row + 1) * self.width;
+        if snake_idx + 1 == threshold {
+          SnakeCell(threshold - self.width)
+        } else {
+          SnakeCell(snake_idx + 1)
+        }
       },
       Direction::Left => {
-        SnakeCell((row * self.width) + (snake_idx - 1) % self.width)
+        let threshold = row * self.width;
+        if snake_idx == threshold {
+          SnakeCell(threshold + (self.width - 1))
+        } else {
+          SnakeCell(snake_idx - 1)
+        }
       },
       Direction::Up => {
-        SnakeCell((snake_idx - self.width) % self.size)
+        let threshold = snake_idx - (row * self.width);
+        if snake_idx == threshold {
+          SnakeCell((self.size - self.width) + threshold)
+        } else {
+          SnakeCell(snake_idx - self.width)
+        }
       },
       Direction::Down => {
-        SnakeCell((snake_idx + self.width) % self.size)
+        let threshold = snake_idx + ((self.width - row) * self.width);
+        if snake_idx + self.width == threshold {
+          SnakeCell(threshold - ((row + 1) * self.width))
+        } else {
+          SnakeCell(snake_idx + self.width)
+        }
       }
     };
   }
